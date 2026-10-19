@@ -1,0 +1,39 @@
+
+name: Drive Video Scheduler
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+      timezone: "Asia/Kolkata"
+    - cron: "0 18 * * *"
+      timezone: "Asia/Kolkata"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: drive-video-scheduler
+  cancel-in-progress: false
+
+jobs:
+  run-scheduler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run video scheduler
+        run: |
+          if [ -f main.py ]; then
+            python main.py
+          else
+            echo "main.py is not added yet. No videos published."
+          fi
