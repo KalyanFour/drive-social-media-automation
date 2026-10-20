@@ -140,7 +140,8 @@ def publish_instagram(file_id, filename):
         },
         timeout=60,
     )
-    response.raise_for_status()
+    if not response.ok:
+        raise RuntimeError(f"Instagram API error: {response.status_code} - {response.text}")
     container_id = response.json()["id"]
 
     for _ in range(30):
