@@ -128,7 +128,7 @@ def publish_instagram(file_id, filename):
         "https://drive.google.com/uc"
         f"?export=download&id={file_id}"
     )
-    base_url = f"https://graph.facebook.com/v23.0/{IG_ACCOUNT_ID}"
+    base_url = f"https://graph.instagram.com/v26.0/{IG_ACCOUNT_ID}"
     response = requests.post(
         f"{base_url}/media",
         data={
@@ -146,7 +146,7 @@ def publish_instagram(file_id, filename):
 
     for _ in range(30):
         status = requests.get(
-            f"https://graph.facebook.com/v23.0/{container_id}",
+            f"https://graph.instagram.com/v26.0/{container_id}",
             params={
                 "fields": "status_code",
                 "access_token": IG_TOKEN,
