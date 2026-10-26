@@ -48,18 +48,43 @@ def save_history(history):
         json.dumps(history, indent=2), encoding="utf-8"
     )
 
+
 def get_videos(drive):
-    result = drive.files().list(
-        q=f"'{FOLDER_ID}' in parents and trashed = false",
-        fields="files(id,name,mimeType,createdTime,size)",
-        orderBy="createdTime",
-        pageSize=1000,
-    ).execute()
-    return sorted(
-        [f for f in result.get("files", [])
-         if f.get("mimeType", "").startswith("video/")],
-        key=lambda f: f.get("createdTime", "")
-    )
+    videos = []
+    page_token = None
+
+    while True:
+        result = drive.files().list(
+            q=f"'{FOLDER_ID}' in parents and trashed = false",
+            fields="nextPageToken,files(id,name,mimeType,createdTime,size)",
+            orderBy="createdTime",
+            pageSize=1000,
+            pageToken=page_token,
+        ).execute()
+
+        files = result.get("files", [])
+
+        for file in files:
+            name = file.get("name", "")
+            mime_type = file.get("mimeType", "")
+
+            print(
+                f"Drive file: {name} | "
+                f"type={mime_type} | "
+                f"id={file.get('id')}"
+            )
+
+            if mime_type.startswith("video/"):
+                videos.append(file)
+
+        page_token = result.get("nextPageToken")
+        if not page_token:
+            break
+
+    videos.sort(key=lambda f: f.get("createdTime", ""))
+    print(f"Total video files found across all pages: {len(videos)}")
+    return videos
+
 
 def download_video(drive, file_id, destination):
     request = drive.files().get_media(fileId=file_id)
